@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Turn a backlit photo of tools on a 5 mm grid into a waterjet-ready SVG foam insert." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f26b1d'/%3E%3Cpath d='M9 23 L16 7 L23 23 Z' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>Foam Tracer</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="logo" aria-hidden="true"></span>Foam Tracer</div>
+      <nav class="steps" aria-label="Steps">
+        <button data-step="1" class="step">1 <span>Photo</span></button>
+        <button data-step="2" class="step">2 <span>Calibrate</span></button>
+        <button data-step="3" class="step">3 <span>Trace &amp; edit</span></button>
+      </nav>
+    </header>
+
+    <main class="app">
+      <section class="stage">
+        <div id="viewer" class="viewer-wrap"></div>
+        <div id="empty" class="empty">
+          <label class="drop">
+            <input id="file" type="file" accept="image/*" hidden />
+            <strong>Choose a photo</strong>
+            <span>or drop it here</span>
+          </label>
+        </div>
+        <div id="hint" class="hint" role="status"></div>
+        <div class="zoom">
+          <button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+          <button id="zoom-out" title="Zoom out" aria-label="Zoom out">&minus;</button>
+          <button id="zoom-fit" title="Fit" aria-label="Fit to view">&#x2922;</button>
+        </div>
+        <div id="busy" class="busy" hidden>Processing&hellip;</div>
+      </section>
+
+      <aside class="panel">
+        <!-- Step 1 -->
+        <div class="pane" data-pane="1">
+          <h2>Photo</h2>
+          <p>Lay the tools on the 5 mm grid over the light panel and shoot from straight above.</p>
+          <ul class="tips">
+            <li>Turn room lights off so the tools are dark silhouettes.</li>
+            <li>Shoot from higher up with some zoom; it cuts lens distortion.</li>
+            <li>Keep a clear block of grid visible to calibrate on, ideally around the tools.</li>
+            <li>Keep tools away from the panel edges.</li>
+          </ul>
+          <button id="pick" class="primary">Choose photo</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="pane" data-pane="2">
+          <h2>Calibrate</h2>
+          <p>Tap the 4 corners of a rectangle of grid squares. Zoom in for accuracy; drag a corner to adjust.</p>
+          <p class="count"><span id="corner-count">0</span> / 4 corners</p>
+          <div class="grid2">
+            <label>Squares across<input id="sq-x" type="number" min="1" step="1" value="30" /></label>
+            <label>Squares down<input id="sq-y" type="number" min="1" step="1" value="20" /></label>
+            <label>Grid size (mm)<input id="grid-mm" type="number" min="0.1" step="0.1" value="5" /></label>
+          </div>
+          <p class="note">The cyan lines should sit on the printed grid. If they drift, recount the squares or move a corner.</p>
+          <div class="row">
+            <button id="reset-corners">Reset corners</button>
+            <button id="to-trace" class="primary" disabled>Straighten &amp; trace</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="pane" data-pane="3">
+          <h2>Trace &amp; edit</h2>
+
+          <details open>
+            <summary>Detection</summary>
+            <div id="detect-lock" class="lock" hidden>
+              Locked: you've edited tools.
+              <button id="unlock">Unlock and discard edits</button>
+            </div>
+            <fieldset id="detect">
+              <label class="check"><input id="auto-t" type="checkbox" checked /> Automatic threshold</label>
+              <label>Threshold <output id="t-val"></output><input id="t" type="range" min="1" max="254" value="128" /></label>
+              <label>Grid line removal <output id="grid-val"></output><input id="grid-rm" type="range" min="0" max="3" step="0.25" value="0.75" /></label>
+              <label>Ignore blobs under <output id="min-val"></output><input id="min-area" type="range" min="0" max="1000" step="10" value="100" /></label>
+            </fieldset>
+          </details>
+
+          <details open>
+            <summary>Pockets</summary>
+            <label>Clearance <output id="clr-val"></output><input id="clr" type="range" min="0" max="5" step="0.1" value="1.5" /></label>
+            <label>Smoothing <output id="smooth-val"></output><input id="smooth" type="range" min="0" max="10" step="0.5" value="1" /></label>
+          </details>
+
+          <details open>
+            <summary>Tools <span id="tool-count" class="badge">0</span></summary>
+            <p class="note">Tap a pocket to select it. Drag its points, tap a point to select it, tap the outline to add a point.</p>
+            <div id="sel-info" class="sel-info"></div>
+            <div class="row">
+              <button id="del-point" disabled>Delete point</button>
+              <button id="del-tool" disabled>Delete tool</button>
+              <button id="reset-tool" disabled>Reset tool</button>
+            </div>
+          </details>
+
+          <details open>
+            <summary>Foam boundary</summary>
+            <label class="check"><input id="bnd-on" type="checkbox" checked /> Include boundary layer</label>
+            <div class="grid2">
+              <label>Width (mm)<input id="bnd-w" type="number" step="1" /></label>
+              <label>Height (mm)<input id="bnd-h" type="number" step="1" /></label>
+              <label>X (mm)<input id="bnd-x" type="number" step="1" /></label>
+              <label>Y (mm)<input id="bnd-y" type="number" step="1" /></label>
+              <label>Margin (mm)<input id="bnd-m" type="number" min="0" step="1" value="10" /></label>
+            </div>
+            <button id="bnd-fit">Fit to tools</button>
+          </details>
+
+          <details open>
+            <summary>View</summary>
+            <label class="check"><input id="show-photo" type="checkbox" checked /> Photo</label>
+            <label class="check"><input id="show-sil" type="checkbox" checked /> Tool outline</label>
+          </details>
+
+          <div id="warn" class="warn" hidden></div>
+          <button id="export" class="primary wide">Download SVG</button>
+        </div>
+      </aside>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

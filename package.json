@@ -1,0 +1,24 @@
+{
+  "name": "foam-trace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trace backlit photos of hand tools on a 5 mm grid into waterjet-ready SVG foam inserts.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/d3-contour": "^3.0.6",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.4",
+    "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "clipper-lib": "^6.4.2",
+    "d3-contour": "^4.0.2"
+  }
+}
