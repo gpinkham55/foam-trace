@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Turn a backlit photo of tools on a 5 mm grid into a waterjet-ready SVG foam insert." />
+    <meta name="description" content="Turn a backlit photo of tools on a printed grid into a waterjet-ready SVG foam insert." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f26b1d'/%3E%3Cpath d='M9 23 L16 7 L23 23 Z' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <title>Foam Tracer</title>
   </head>
@@ -40,7 +40,7 @@
         <!-- Step 1 -->
         <div class="pane" data-pane="1">
           <h2>Photo</h2>
-          <p>Lay the tools on the 5 mm grid over the light panel and shoot from straight above.</p>
+          <p>Lay the tools on the grid sheet over the light panel and shoot from straight above.</p>
           <ul class="tips">
             <li>Turn room lights off so the tools are dark silhouettes.</li>
             <li>Shoot from higher up with some zoom; it cuts lens distortion.</li>
@@ -56,10 +56,12 @@
           <p>Tap the 4 corners of a rectangle of grid squares. Zoom in for accuracy; drag a corner to adjust.</p>
           <p class="count"><span id="corner-count">0</span> / 4 corners</p>
           <div class="grid2">
-            <label>Squares across<input id="sq-x" type="number" min="1" step="1" value="30" /></label>
-            <label>Squares down<input id="sq-y" type="number" min="1" step="1" value="20" /></label>
-            <label>Grid size (mm)<input id="grid-mm" type="number" min="0.1" step="0.1" value="5" /></label>
+            <label>Squares across<input id="sq-x" type="number" min="1" step="1" value="68" /></label>
+            <label>Squares down<input id="sq-y" type="number" min="1" step="1" value="44" /></label>
+            <label>Square size<input id="grid-size" type="number" min="0.01" step="any" value="0.25" /></label>
+            <label>Units<select id="grid-unit"><option value="in" selected>inches</option><option value="mm">mm</option></select></label>
           </div>
+          <p class="note">Defaults fit the full 11 &times; 17 in sheet with &frac14; in squares (68 &times; 44). Use your own counts if you tap a smaller block.</p>
           <p class="note">The cyan lines should sit on the printed grid. If they drift, recount the squares or move a corner.</p>
           <div class="row">
             <button id="reset-corners">Reset corners</button>

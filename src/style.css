@@ -126,6 +126,10 @@ input[type="number"] {
   display: block; width: 100%; margin-top: 4px; padding: 6px 8px; font: inherit; font-family: var(--mono);
   color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
 }
+select {
+  display: block; width: 100%; margin-top: 4px; padding: 6px 8px; font: inherit;
+  color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+}
 input[type="range"] { display: block; width: 100%; margin-top: 6px; accent-color: var(--accent); }
 input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }

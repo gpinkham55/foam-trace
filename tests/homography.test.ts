@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyH, homographyFromPoints, invertH } from "../src/core/homography";
-import { orderCorners } from "../src/core/calibration";
+import { calibrate, orderCorners } from "../src/core/calibration";
 
 describe("homography", () => {
   const src = [{ x: 10, y: 20 }, { x: 410, y: 40 }, { x: 380, y: 300 }, { x: 30, y: 280 }];
@@ -32,5 +32,17 @@ describe("orderCorners", () => {
   it("returns TL, TR, BR, BL whatever the click order", () => {
     const tl = { x: 10, y: 12 }, tr = { x: 400, y: 30 }, br = { x: 390, y: 300 }, bl = { x: 20, y: 290 };
     expect(orderCorners([br, tl, bl, tr])).toEqual([tl, tr, br, bl]);
+  });
+});
+
+describe("calibrate", () => {
+  it("sizes the full 11 x 17 in sheet of quarter-inch squares", () => {
+    const corners = [{ x: 50, y: 40 }, { x: 1700, y: 60 }, { x: 1680, y: 1100 }, { x: 40, y: 1080 }];
+    const cal = calibrate(corners, 68, 44, 0.25 * 25.4);
+    expect(cal.rectMm.w).toBeCloseTo(431.8, 6);
+    expect(cal.rectMm.h).toBeCloseTo(279.4, 6);
+    const far = applyH(cal.imgToMm, corners[2]);
+    expect(far.x).toBeCloseTo(431.8, 6);
+    expect(far.y).toBeCloseTo(279.4, 6);
   });
 });

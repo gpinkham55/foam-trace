@@ -16,6 +16,8 @@ type Step = 1 | 2 | 3;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = (id: string) => $<HTMLInputElement>(id);
 const num = (id: string) => parseFloat(input(id).value);
+/** Grid square size in mm, from the size field and its unit. */
+const gridMm = () => num("grid-size") * ($<HTMLSelectElement>("grid-unit").value === "in" ? 25.4 : 1);
 
 const state = {
   step: 1 as Step,
@@ -44,7 +46,7 @@ const viewer = new Viewer($("viewer"));
 
 const isDirty = () => state.deletedCount > 0 || state.tools.some((t) => t.edited);
 const selectedTool = () => state.tools.find((t) => t.id === state.selected) ?? null;
-const calKey = () => JSON.stringify([state.corners, num("sq-x"), num("sq-y"), num("grid-mm")]);
+const calKey = () => JSON.stringify([state.corners, num("sq-x"), num("sq-y"), gridMm()]);
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 const fmt = (v: number, d = 1) => v.toFixed(d);
 
@@ -55,7 +57,7 @@ function busy(on: boolean): void {
 function previewCalibration(): Calibration | null {
   if (state.corners.length !== 4) return null;
   try {
-    return calibrate(state.corners, num("sq-x"), num("sq-y"), num("grid-mm"));
+    return calibrate(state.corners, num("sq-x"), num("sq-y"), gridMm());
   } catch {
     return null;
   }
@@ -121,7 +123,7 @@ async function goToTrace(): Promise<void> {
   if (isDirty() && !confirm("Recalibrating traces the tools again and discards your edits. Continue?")) return;
   let cal: Calibration;
   try {
-    cal = calibrate(state.corners, num("sq-x"), num("sq-y"), num("grid-mm"));
+    cal = calibrate(state.corners, num("sq-x"), num("sq-y"), gridMm());
   } catch (e) {
     alert((e as Error).message);
     return;
@@ -228,7 +230,7 @@ function renderCalibrate(): void {
   const g = viewer.overlay;
   const cal = previewCalibration();
   if (cal) {
-    const sx = num("sq-x"), sy = num("sq-y"), mm = num("grid-mm");
+    const sx = num("sq-x"), sy = num("sq-y"), mm = gridMm();
     if (sx + sy <= 400) {
       const lines = el("g", { class: "ov-grid" });
       const line = (a: Pt, b: Pt) => {
@@ -320,7 +322,9 @@ function refreshPanel(): void {
     const s = bbox([t.silhouette]), p = bbox([t.pocket]);
     const idx = state.tools.indexOf(t) + 1;
     $("sel-info").textContent =
-      `Tool ${idx}${t.edited ? " (edited)" : ""}\nTool  ${fmt(s.w)} × ${fmt(s.h)} mm\nPocket ${fmt(p.w)} × ${fmt(p.h)} mm`;
+      `Tool ${idx}${t.edited ? " (edited)" : ""}\n` +
+      `Tool   ${fmt(s.w)} × ${fmt(s.h)} mm (${fmt(s.w / 25.4, 2)} × ${fmt(s.h / 25.4, 2)} in)\n` +
+      `Pocket ${fmt(p.w)} × ${fmt(p.h)} mm (${fmt(p.w / 25.4, 2)} × ${fmt(p.h / 25.4, 2)} in)`;
   } else {
     $("sel-info").textContent = state.tools.length ? "No tool selected." : "";
   }
@@ -450,7 +454,8 @@ $("reset-corners").addEventListener("click", () => {
   refreshPanel();
   render();
 });
-for (const id of ["sq-x", "sq-y", "grid-mm"]) input(id).addEventListener("input", () => render());
+for (const id of ["sq-x", "sq-y", "grid-size"]) input(id).addEventListener("input", () => render());
+$("grid-unit").addEventListener("change", () => render());
 $("to-trace").addEventListener("click", () => void goToTrace());
 
 // Detection
