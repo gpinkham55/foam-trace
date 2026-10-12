@@ -2,7 +2,7 @@
 
 ## Goal
 
-Upload a backlit phone photo of hand tools on a 5 mm grid and download a millimetre SVG for waterjet-cutting a foam insert. Static site on GitHub Pages; all processing in the browser.
+Upload a backlit phone photo of hand tools on a printed grid (11 × 17 in sheet, ¼ in squares by default; any square size in inches or mm works) and download a millimetre SVG for waterjet-cutting a foam insert. Static site on GitHub Pages; all processing in the browser.
 
 ## Decisions
 
